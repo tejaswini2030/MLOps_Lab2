@@ -3,23 +3,14 @@ name: Lab 2 - House Price Model CI/CD
 on:
   push:
     branches: [main]
-    paths:
-      - "MLOps_Lab2/**"
-      - ".github/workflows/lab2_house_prices.yml"
   pull_request:
-    paths:
-      - "MLOps_Lab2/**"
-      - ".github/workflows/lab2_house_prices.yml"
-  workflow_dispatch: 
+  workflow_dispatch:   # "Run workflow" button in the Actions tab
 
 jobs:
   # ---------- CI: check the code before anything is trained ----------
   test:
     name: Test
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: MLOps_Lab2
     steps:
       - uses: actions/checkout@v4
 
@@ -27,7 +18,7 @@ jobs:
         with:
           python-version: "3.11"
           cache: pip
-          cache-dependency-path: MLOps_Lab2/requirements.txt
+          cache-dependency-path: requirements.txt
 
       - name: Install dependencies
         run: pip install -r requirements.txt
@@ -43,9 +34,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write                            # needed to create a GitHub Release
-    defaults:
-      run:
-        working-directory: MLOps_Lab2
     env:
       GH_TOKEN: ${{ github.token }}              # lets the gh CLI talk to GitHub
     steps:
@@ -55,7 +43,7 @@ jobs:
         with:
           python-version: "3.11"
           cache: pip
-          cache-dependency-path: MLOps_Lab2/requirements.txt
+          cache-dependency-path: requirements.txt
 
       - name: Install dependencies
         run: pip install -r requirements.txt
@@ -95,8 +83,8 @@ jobs:
         with:
           name: house-price-model-${{ env.timestamp }}
           path: |
-            MLOps_Lab2/models/
-            MLOps_Lab2/metrics/
+            models/
+            metrics/
 
       - name: Release the new model
         if: steps.compare.outputs.promote == 'true'
