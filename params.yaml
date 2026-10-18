@@ -1,0 +1,15 @@
+# All settings for the pipeline live here, so you can change the model
+# without touching the code. Changing this file triggers the CI/CD workflow.
+
+data:
+  test_size: 0.2        # 20% of the houses are kept aside for testing
+  random_state: 42      # makes the train/test split the same every run
+
+model:                  # HistGradientBoostingRegressor settings
+  max_iter: 300
+  learning_rate: 0.1
+  max_leaf_nodes: 31
+  random_state: 42
+
+evaluation:
+  min_r2: 0.75          # quality gate: the pipeline fails if R² is below this
