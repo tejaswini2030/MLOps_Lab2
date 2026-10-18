@@ -12,9 +12,9 @@ jobs:
     name: Test
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.11"
           cache: pip
@@ -37,9 +37,9 @@ jobs:
     env:
       GH_TOKEN: ${{ github.token }}              # lets the gh CLI talk to GitHub
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.11"
           cache: pip
@@ -77,6 +77,21 @@ jobs:
       - name: Compare with the last release
         id: compare
         run: python -m src.compare --new "metrics/metrics_${timestamp}.json" --old previous/metrics.json
+
+      - name: Commit the model and metrics to the repo
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898283+github-actions[bot]@users.noreply.github.com"
+          # -f is needed because models/ and metrics/ are in .gitignore
+          # (that keeps local test runs out, while CI-trained models get committed)
+          git add -f "models/model_${timestamp}.joblib" "metrics/metrics_${timestamp}.json"
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+          else
+            git commit -m "Add model and metrics for version ${timestamp}"
+            git pull --rebase origin main   # in case main moved while this job ran
+            git push origin main
+          fi
 
       - name: Upload model and metrics as a workflow artifact
         uses: actions/upload-artifact@v4
